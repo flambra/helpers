@@ -14,6 +14,10 @@ func SuccessResponse(c *fiber.Ctx, data interface{}) error {
 	return c.Status(http.StatusOK).JSON(data)
 }
 
+func SuccessCreated(c *fiber.Ctx, data interface{}) error {
+	return c.Status(http.StatusCreated).JSON(data)
+}
+
 func UnprocessableResponse(c *fiber.Ctx, message string) error {
 	return c.Status(http.StatusUnprocessableEntity).JSON(DefaultResponse{
 		Message: message,
