@@ -1,10 +1,8 @@
-package database
+package repository
 
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"reflect"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -30,9 +28,9 @@ type repositoryImpl struct {
 	ctx    *fiber.Ctx
 }
 
-func New(entity interface{}, ctx *fiber.Ctx) Repository {
+func New(db *gorm.DB, entity interface{}, ctx *fiber.Ctx) Repository {
 	return &repositoryImpl{
-		db:     database.GetDB(),
+		db:     db,
 		entity: entity,
 		ctx:    ctx,
 	}
@@ -110,7 +108,6 @@ func (r *repositoryImpl) Create() error {
 	if r.ctx.Locals("user") == nil {
 		return fmt.Errorf("user operator not found, try auth again")
 	}
-	user := r.ctx.Locals("user").(*domain.User)
 
 	queryDb := r.db
 	queryDb = queryDb.Create(r.entity)
@@ -123,55 +120,10 @@ func (r *repositoryImpl) Create() error {
 		return fmt.Errorf("rows affected equals zero")
 	}
 
-	rawEntity, err := json.Marshal(r.entity)
-	if err != nil {
-		return err
-	}
-
-	id, err := r.getEntityId()
-	if err != nil {
-		log.Println("failed to save the id of the entity created in audit table", string(rawEntity))
-	}
-
-	audit := domain.Audit{
-		UserId:    int(user.ID),
-		TableName: queryDb.Statement.Table,
-		RowId:     int(id),
-		Action:    "CREATE",
-		JsonData:  string(rawEntity),
-	}
-
-	bigquery := bigquery.GetDB().Create(&audit)
-	if bigquery.Error != nil {
-		return bigquery.Error
-	}
-
 	return nil
 }
 
 func (r *repositoryImpl) Save() error {
-	if r.ctx.Locals("user") == nil {
-		return fmt.Errorf("user operator not found, try auth again")
-	}
-	user := r.ctx.Locals("user").(*domain.User)
-
-	var action string
-
-	id, err := r.getEntityId()
-	if err != nil {
-		entityStruct := reflect.ValueOf(r.entity)
-		for entityStruct.Kind() == reflect.Ptr {
-			entityStruct = entityStruct.Elem()
-		}
-		log.Println("failed to get the id of the entity", entityStruct)
-	}
-
-	if id == 0 {
-		action = "INSERT"
-	} else {
-		action = "UPDATE"
-	}
-
 	queryDb := r.db
 	queryDb = queryDb.Save(r.entity)
 	if queryDb.Error != nil {
@@ -182,29 +134,6 @@ func (r *repositoryImpl) Save() error {
 		return fmt.Errorf("rows affected equals zero")
 	}
 
-	rawEntity, err := json.Marshal(r.entity)
-	if err != nil {
-		return err
-	}
-
-	id, err = r.getEntityId()
-	if err != nil {
-		log.Println("failed to save the id of the entity created in audit table", string(rawEntity))
-	}
-
-	audit := domain.Audit{
-		UserId:    int(user.ID),
-		TableName: queryDb.Statement.Table,
-		RowId:     int(id),
-		Action:    action,
-		JsonData:  string(rawEntity),
-	}
-
-	bigquery := bigquery.GetDB().Create(&audit)
-	if bigquery.Error != nil {
-		return bigquery.Error
-	}
-
 	return nil
 }
 
@@ -212,7 +141,6 @@ func (r *repositoryImpl) Delete(id int) error {
 	if r.ctx.Locals("user") == nil {
 		return fmt.Errorf("user operator not found, try auth again")
 	}
-	user := r.ctx.Locals("user").(*domain.User)
 
 	queryDb := r.db
 	queryDb = queryDb.Delete(r.entity, id)
@@ -223,18 +151,6 @@ func (r *repositoryImpl) Delete(id int) error {
 		return fmt.Errorf("rows affected equals zero")
 	}
 
-	audit := domain.Audit{
-		UserId:    int(user.ID),
-		TableName: queryDb.Statement.Table,
-		RowId:     id,
-		Action:    "DELETE",
-	}
-
-	bigquery := bigquery.GetDB().Create(&audit)
-	if bigquery.Error != nil {
-		return bigquery.Error
-	}
-
 	return nil
 }
 
@@ -242,7 +158,6 @@ func (r *repositoryImpl) Update(fields interface{}, id int) error {
 	if r.ctx.Locals("user") == nil {
 		return fmt.Errorf("user operator not found, try auth again")
 	}
-	user := r.ctx.Locals("user").(*domain.User)
 
 	queryDb := r.db
 	queryDb = queryDb.Model(r.entity).Where("id = ?", id).Updates(fields).Find(r.entity)
@@ -253,24 +168,6 @@ func (r *repositoryImpl) Update(fields interface{}, id int) error {
 
 	if queryDb.RowsAffected == 0 {
 		return fmt.Errorf("rows affected equals zero")
-	}
-
-	rawEntity, err := json.Marshal(&fields)
-	if err != nil {
-		return err
-	}
-
-	audit := domain.Audit{
-		UserId:    int(user.ID),
-		TableName: queryDb.Statement.Table,
-		RowId:     id,
-		Action:    "UPDATE",
-		JsonData:  string(rawEntity),
-	}
-
-	bigquery := bigquery.GetDB().Create(&audit)
-	if bigquery.Error != nil {
-		return bigquery.Error
 	}
 
 	return nil
@@ -287,16 +184,4 @@ func (r *repositoryImpl) checkPreloads(args ...string) *gorm.DB {
 		queryDb = queryDb.Preload(arg)
 	}
 	return queryDb
-}
-
-func (r *repositoryImpl) getEntityId() (uint, error) {
-	entityStruct := reflect.ValueOf(r.entity)
-	for entityStruct.Kind() == reflect.Ptr {
-		entityStruct = entityStruct.Elem()
-	}
-	id, ok := entityStruct.FieldByName("ID").Interface().(uint)
-	if !ok {
-		return 0, fmt.Errorf("failed to get entity id")
-	}
-	return id, nil
 }
