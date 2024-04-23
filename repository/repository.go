@@ -105,10 +105,6 @@ func (r *repositoryImpl) FindAllPaginating(filter Filter, paginator *Paginator, 
 }
 
 func (r *repositoryImpl) Create() error {
-	if r.ctx.Locals("user") == nil {
-		return fmt.Errorf("user operator not found, try auth again")
-	}
-
 	queryDb := r.db
 	queryDb = queryDb.Create(r.entity)
 
@@ -138,10 +134,6 @@ func (r *repositoryImpl) Save() error {
 }
 
 func (r *repositoryImpl) Delete(id int) error {
-	if r.ctx.Locals("user") == nil {
-		return fmt.Errorf("user operator not found, try auth again")
-	}
-
 	queryDb := r.db
 	queryDb = queryDb.Delete(r.entity, id)
 	if queryDb.Error != nil {
@@ -155,10 +147,6 @@ func (r *repositoryImpl) Delete(id int) error {
 }
 
 func (r *repositoryImpl) Update(fields interface{}, id int) error {
-	if r.ctx.Locals("user") == nil {
-		return fmt.Errorf("user operator not found, try auth again")
-	}
-
 	queryDb := r.db
 	queryDb = queryDb.Model(r.entity).Where("id = ?", id).Updates(fields).Find(r.entity)
 
