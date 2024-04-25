@@ -33,7 +33,6 @@ func GetToken() (string, error) {
 		request := http.HttpRequest{
 			Url:           url + "/client/auth",
 			Authorization: authoritazion,
-			StatusCode:    200,
 		}
 
 		responseBytes, err := request.Post()
