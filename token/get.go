@@ -28,7 +28,7 @@ func Get() (string, error) {
 			StatusCode:    200,
 		}
 
-		responseBytes, err := request.Get()
+		responseBytes, err := request.Post()
 		if err != nil {
 			return "", err
 		}
