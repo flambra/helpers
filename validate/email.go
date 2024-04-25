@@ -1,21 +1,21 @@
 package validate
 
 import (
-	"errors"
+	"github.com/flambra/helpers/errgen" 
 	"regexp"
 )
 
 func Email(email string) error {
 	if hasEmptySpaces(email) {
-		return errors.New("email has empty characters")
+		return errgen.New("email has empty characters")
 	}
 
 	if isAllLowerCase(email) {
-		return errors.New("email has upper case characters")
+		return errgen.New("email has upper case characters")
 	}
 
 	if !checkAt(email) {
-		return errors.New("email missing @ character")
+		return errgen.New("email missing @ character")
 	}
 
 	return nil

@@ -1,7 +1,7 @@
 package validate
 
 import (
-	"errors"
+	"github.com/flambra/helpers/errgen" 
 	"fmt"
 	"regexp"
 )
@@ -21,11 +21,11 @@ func isCpfFormatted(s string) bool {
 func formatToCpf(cpf string) (string, error) {
 	raw := removeEmptySpaces(cpf)
 	if hasNonDigits(raw) {
-		return "", errors.New("failed to format cpf: must have only digits")
+		return "", errgen.New("failed to format cpf: must have only digits")
 	}
 
 	if len(raw) != 11 {
-		return "", errors.New("failed to format cpf: invalid length")
+		return "", errgen.New("failed to format cpf: invalid length")
 	}
 	formatted := fmt.Sprintf("%s.%s.%s-%s", raw[0:3], raw[3:6], raw[6:9], raw[9:11])
 	return formatted, nil
