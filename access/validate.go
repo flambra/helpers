@@ -21,18 +21,18 @@ func ValidateToken(authorization string) error {
 
 	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv("PUBLIC_KEY")))
 	if err != nil {
-		return errgen.New("Failed to parse public key")
+		return err
 	}
 
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, errgen.New("Unauthorized")
+			return nil, err
 		}
 		return publicKey, nil
 	})
 
 	if err != nil || !parsedToken.Valid {
-		return errgen.New("You have no permission to do this")
+		return err
 	}
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/flambra/helpers/errgen"
 	"github.com/flambra/helpers/http"
 )
 
@@ -20,10 +21,17 @@ type GetTokenResponse struct {
 }
 
 func GetToken() (string, error) {
+	username := os.Getenv("AUTH_USERNAME")
+	password := os.Getenv("AUTH_PASSWORD")
+	url := os.Getenv("AUTH_URL")
+	if username == "" || password == "" || url == "" {
+		return "", errgen.New("Missing environment variables: AUTH_USERNAME, AUTH_PASSWORD, or AUTH_URL")
+	}
+
 	if accessToken == "" || isTokenExpired() {
-		authoritazion := BasicAuth(os.Getenv("AUTH_USERNAME"), os.Getenv("AUTH_PASSWORD"))
+		authoritazion := BasicAuth(username, password)
 		request := http.HttpRequest{
-			Url:           os.Getenv("AUTH_URL"),
+			Url:           url + "/client/auth",
 			Authorization: authoritazion,
 			StatusCode:    200,
 		}
