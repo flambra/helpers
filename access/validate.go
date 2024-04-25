@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func Validate(authorization string) error {
+func ValidateToken(authorization string) error {
 	parts := strings.Split(authorization, " ")
 	if len(parts) != 2 {
 		return errgen.New("Token error")

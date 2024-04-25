@@ -19,7 +19,7 @@ type GetTokenResponse struct {
 	ExpireAt    time.Time `json:"expire_at"`
 }
 
-func Get() (string, error) {
+func GetToken() (string, error) {
 	if accessToken == "" || isTokenExpired() {
 		authoritazion := BasicAuth(os.Getenv("AUTH_USERNAME"), os.Getenv("AUTH_PASSWORD"))
 		request := http.HttpRequest{
