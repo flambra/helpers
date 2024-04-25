@@ -3,10 +3,11 @@ package http
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/flambra/helpers/errgen"
 )
 
 type HttpRequest struct {
@@ -55,7 +56,7 @@ func (h *HttpRequest) Post() ([]byte, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errors.New(resp.Status)
+		return nil, errgen.New(resp.Status)
 
 	}
 
@@ -99,7 +100,7 @@ func (h *HttpRequest) Get() ([]byte, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errors.New(resp.Status)
+		return nil, errgen.New(resp.Status)
 
 	}
 
@@ -144,7 +145,7 @@ func (h *HttpRequest) Put() ([]byte, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errors.New(resp.Status)
+		return nil, errgen.New(resp.Status)
 
 	}
 
