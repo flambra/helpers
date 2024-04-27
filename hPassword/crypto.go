@@ -1,4 +1,4 @@
-package passwords
+package hPassword
 
 import (
 	"golang.org/x/crypto/bcrypt"
