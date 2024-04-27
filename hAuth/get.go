@@ -1,4 +1,4 @@
-package token
+package hAuth
 
 import (
 	"encoding/base64"
@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/flambra/helpers/errgen"
-	"github.com/flambra/helpers/http"
+	"github.com/flambra/helpers/hError"
+	"github.com/flambra/helpers/hReq"
 )
 
 var (
@@ -25,12 +25,12 @@ func GetToken() (string, error) {
 	password := os.Getenv("AUTH_PASSWORD")
 	url := os.Getenv("AUTH_URL")
 	if username == "" || password == "" || url == "" {
-		return "", errgen.New("Missing environment variables: AUTH_USERNAME, AUTH_PASSWORD, or AUTH_URL")
+		return "", hError.New("Missing environment variables: AUTH_USERNAME, AUTH_PASSWORD, or AUTH_URL")
 	}
 
 	if accessToken == "" || isTokenExpired() {
 		authoritazion := BasicAuth(username, password)
-		request := http.HttpRequest{
+		request := hReq.Request{
 			Url:           url + "/client/auth",
 			Authorization: authoritazion,
 		}

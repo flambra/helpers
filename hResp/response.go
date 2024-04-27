@@ -1,4 +1,4 @@
-package http
+package hResp
 
 import (
 	"net/http"

@@ -1,7 +1,7 @@
-package repository
+package hRepository
 
 import (
-	"github.com/flambra/helpers/types"
+	"github.com/flambra/helpers/hTypes"
 	"gorm.io/gorm"
 )
 
@@ -11,8 +11,8 @@ type Filter interface {
 
 type DefaultFilter struct {
 	Name                      string     `query:"name"`
-	CreatedGreaterOrEqualThan types.Date `query:"createdGreaterOrEqualThan"`
-	CreatedLessOrEqualThan    types.Date `query:"createdLessOrEqualThan"`
+	CreatedGreaterOrEqualThan hTypes.Date `query:"createdGreaterOrEqualThan"`
+	CreatedLessOrEqualThan    hTypes.Date `query:"createdLessOrEqualThan"`
 }
 
 func (d *DefaultFilter) Apply(db *gorm.DB) *gorm.DB {

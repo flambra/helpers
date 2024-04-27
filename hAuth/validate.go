@@ -1,22 +1,22 @@
-package token
+package hAuth
 
 import (
 	"os"
 	"strings"
 
-	"github.com/flambra/helpers/errgen"
+	"github.com/flambra/helpers/hError"
 	"github.com/golang-jwt/jwt"
 )
 
 func ValidateToken(authorization string) error {
 	parts := strings.Split(authorization, " ")
 	if len(parts) != 2 {
-		return errgen.New("Token error")
+		return hError.New("Token error")
 	}
 
 	scheme, token := parts[0], parts[1]
 	if !strings.EqualFold(scheme, "Bearer") {
-		return errgen.New("Token malformatted")
+		return hError.New("Token malformatted")
 	}
 
 	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv("PUBLIC_KEY")))

@@ -1,21 +1,22 @@
-package validate
+package hValidate
 
 import (
-	"github.com/flambra/helpers/errgen" 
 	"regexp"
+
+	"github.com/flambra/helpers/hError"
 )
 
 func Email(email string) error {
 	if hasEmptySpaces(email) {
-		return errgen.New("email has empty characters")
+		return hError.New("email has empty characters")
 	}
 
 	if isAllLowerCase(email) {
-		return errgen.New("email has upper case characters")
+		return hError.New("email has upper case characters")
 	}
 
 	if !checkAt(email) {
-		return errgen.New("email missing @ character")
+		return hError.New("email missing @ character")
 	}
 
 	return nil

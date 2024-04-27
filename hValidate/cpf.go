@@ -1,9 +1,10 @@
-package validate
+package hValidate
 
 import (
-	"github.com/flambra/helpers/errgen" 
 	"fmt"
 	"regexp"
+
+	"github.com/flambra/helpers/hError"
 )
 
 func CPF(cpf string) (string, error) {
@@ -21,11 +22,11 @@ func isCpfFormatted(s string) bool {
 func formatToCpf(cpf string) (string, error) {
 	raw := removeEmptySpaces(cpf)
 	if hasNonDigits(raw) {
-		return "", errgen.New("failed to format cpf: must have only digits")
+		return "", hError.New("failed to format cpf: must have only digits")
 	}
 
 	if len(raw) != 11 {
-		return "", errgen.New("failed to format cpf: invalid length")
+		return "", hError.New("failed to format cpf: invalid length")
 	}
 	formatted := fmt.Sprintf("%s.%s.%s-%s", raw[0:3], raw[3:6], raw[6:9], raw[9:11])
 	return formatted, nil

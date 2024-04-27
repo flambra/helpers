@@ -1,4 +1,4 @@
-package http
+package hReq
 
 import (
 	"bytes"
@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/flambra/helpers/errgen"
+	"github.com/flambra/helpers/hError"
 )
 
-type HttpRequest struct {
+type Request struct {
 	Url           string
 	ContentType   string
 	Authorization string
@@ -18,27 +18,27 @@ type HttpRequest struct {
 	StatusCode    int
 }
 
-func (h *HttpRequest) Post() ([]byte, error) {
-	if h.ContentType == "" {
-		h.ContentType = "application/json"
+func (r *Request) Post() ([]byte, error) {
+	if r.ContentType == "" {
+		r.ContentType = "application/json"
 	}
 
-	payload, err := json.Marshal(&h.Body)
+	payload, err := json.Marshal(&r.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", h.Url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", r.Url, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", h.ContentType)
+	req.Header.Add("Content-Type", r.ContentType)
 
-	if h.Authorization != "" {
-		req.Header.Add("Authorization", h.Authorization)
+	if r.Authorization != "" {
+		req.Header.Add("Authorization", r.Authorization)
 	}
 
 	resp, err := client.Do(req)
@@ -51,35 +51,35 @@ func (h *HttpRequest) Post() ([]byte, error) {
 		return nil, err
 	}
 
-	h.StatusCode = resp.StatusCode
+	r.StatusCode = resp.StatusCode
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errgen.New(resp.Status)
+		return nil, hError.New(resp.Status)
 
 	}
 
 	return decoded, nil
 }
 
-func (h *HttpRequest) Get() ([]byte, error) {
-	if h.ContentType == "" {
-		h.ContentType = "application/json"
+func (r *Request) Get() ([]byte, error) {
+	if r.ContentType == "" {
+		r.ContentType = "application/json"
 	}
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", h.Url, nil)
+	req, err := http.NewRequest("GET", r.Url, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", h.ContentType)
+	req.Header.Add("Content-Type", r.ContentType)
 
-	if h.Authorization != "" {
-		req.Header.Add("Authorization", h.Authorization)
+	if r.Authorization != "" {
+		req.Header.Add("Authorization", r.Authorization)
 	}
 
 	resp, err := client.Do(req)
@@ -95,39 +95,39 @@ func (h *HttpRequest) Get() ([]byte, error) {
 		return nil, err
 	}
 
-	h.StatusCode = resp.StatusCode
+	r.StatusCode = resp.StatusCode
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errgen.New(resp.Status)
+		return nil, hError.New(resp.Status)
 
 	}
 
 	return decoded, nil
 }
 
-func (h *HttpRequest) Put() ([]byte, error) {
-	if h.ContentType == "" {
-		h.ContentType = "application/json"
+func (r *Request) Put() ([]byte, error) {
+	if r.ContentType == "" {
+		r.ContentType = "application/json"
 	}
 
-	payload, err := json.Marshal(&h.Body)
+	payload, err := json.Marshal(&r.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("PUT", h.Url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("PUT", r.Url, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Content-Type", h.ContentType)
+	req.Header.Add("Content-Type", r.ContentType)
 
-	if h.Authorization != "" {
-		req.Header.Add("Authorization", h.Authorization)
+	if r.Authorization != "" {
+		req.Header.Add("Authorization", r.Authorization)
 	}
 
 	resp, err := client.Do(req)
@@ -140,12 +140,12 @@ func (h *HttpRequest) Put() ([]byte, error) {
 		return nil, err
 	}
 
-	h.StatusCode = resp.StatusCode
+	r.StatusCode = resp.StatusCode
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		message := string(decoded)
 		log.Println(message)
-		return nil, errgen.New(resp.Status)
+		return nil, hError.New(resp.Status)
 
 	}
 

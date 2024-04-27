@@ -1,9 +1,9 @@
-package validate
-
+package hValidate
 import (
-	"github.com/flambra/helpers/errgen" 
 	"fmt"
 	"regexp"
+
+	"github.com/flambra/helpers/hError"
 )
 
 func Cellphone(phone string) (string, error) {
@@ -21,11 +21,11 @@ func isCellphoneFormatted(s string) bool {
 func formatToCellphone(phone string) (string, error) {
 	raw := removeEmptySpaces(phone)
 	if hasNonDigits(raw) {
-		return "", errgen.New("failed to format phone: must have only digits")
+		return "", hError.New("failed to format phone: must have only digits")
 	}
 
 	if len(raw) != 11 {
-		return "", errgen.New("failed to format phone: invalid length")
+		return "", hError.New("failed to format phone: invalid length")
 	}
 	formatted := fmt.Sprintf("(%s)%s-%s", raw[0:2], raw[2:7], raw[7:11])
 	return formatted, nil

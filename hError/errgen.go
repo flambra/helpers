@@ -1,4 +1,4 @@
-package errgen
+package hError
 
 func New(text string) error {
 	return &errorString{text}

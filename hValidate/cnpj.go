@@ -1,9 +1,10 @@
-package validate
+package hValidate
 
 import (
-	"github.com/flambra/helpers/errgen" 
 	"fmt"
 	"regexp"
+
+	"github.com/flambra/helpers/hError"
 )
 
 func CNPJ(cnpj string) (string, error) {
@@ -21,11 +22,11 @@ func isCnpjFormatted(s string) bool {
 func formatToCnpj(cpf string) (string, error) {
 	raw := removeEmptySpaces(cpf)
 	if hasNonDigits(raw) {
-		return "", errgen.New("failed to format cnpj: must have only digits")
+		return "", hError.New("failed to format cnpj: must have only digits")
 	}
 
 	if len(raw) != 14 {
-		return "", errgen.New("failed to format cnpj: invalid length")
+		return "", hError.New("failed to format cnpj: invalid length")
 	}
 	formatted := fmt.Sprintf("%s.%s.%s/%s-%s", raw[0:2], raw[2:5], raw[5:8], raw[8:12], raw[12:14])
 	return formatted, nil
