@@ -1,4 +1,4 @@
-package db
+package hDb
 
 import (
 	"fmt"
