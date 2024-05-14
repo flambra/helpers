@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/flambra/helpers/hError"
 )
@@ -15,6 +16,7 @@ type Request struct {
 	ContentType   string
 	Authorization string
 	Body          interface{}
+	Params        map[string]string
 	StatusCode    int
 }
 
@@ -57,7 +59,6 @@ func (r *Request) Post() ([]byte, error) {
 		message := string(decoded)
 		log.Println(message)
 		return nil, hError.New(resp.Status)
-
 	}
 
 	return decoded, nil
@@ -70,7 +71,8 @@ func (r *Request) Get() ([]byte, error) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", r.Url, nil)
+	url := params(r.Url, r.Params)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -101,7 +103,6 @@ func (r *Request) Get() ([]byte, error) {
 		message := string(decoded)
 		log.Println(message)
 		return nil, hError.New(resp.Status)
-
 	}
 
 	return decoded, nil
@@ -119,7 +120,8 @@ func (r *Request) Put() ([]byte, error) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("PUT", r.Url, bytes.NewBuffer(payload))
+	url := params(r.Url, r.Params)
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +148,27 @@ func (r *Request) Put() ([]byte, error) {
 		message := string(decoded)
 		log.Println(message)
 		return nil, hError.New(resp.Status)
-
 	}
 
 	return decoded, nil
+}
+
+func params(baseURL string, params map[string]string) string {
+	if len(params) == 0 {
+		return baseURL
+	}
+
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		log.Println("Error parsing URL:", err)
+		return baseURL
+	}
+
+	q := u.Query()
+	for key, value := range params {
+		q.Set(key, value)
+	}
+	u.RawQuery = q.Encode()
+
+	return u.String()
 }
