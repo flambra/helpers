@@ -3,6 +3,7 @@ package hReq
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ type Request struct {
 	ContentType   string
 	Authorization string
 	Body          interface{}
-	Params        map[string]string
+	Params        map[string]interface{}
 	StatusCode    int
 }
 
@@ -153,7 +154,7 @@ func (r *Request) Put() ([]byte, error) {
 	return decoded, nil
 }
 
-func params(baseURL string, params map[string]string) string {
+func params(baseURL string, params map[string]interface{}) string {
 	if len(params) == 0 {
 		return baseURL
 	}
@@ -166,7 +167,14 @@ func params(baseURL string, params map[string]string) string {
 
 	q := u.Query()
 	for key, value := range params {
-		q.Set(key, value)
+		switch v := value.(type) {
+		case int:
+			q.Set(key, fmt.Sprintf("%d", v))
+		case uint:
+			q.Set(key, fmt.Sprintf("%d", v))
+		default:
+			q.Set(key, fmt.Sprintf("%v", v)) // String
+		}
 	}
 	u.RawQuery = q.Encode()
 
