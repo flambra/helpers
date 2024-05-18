@@ -68,7 +68,23 @@ func (r *repositoryImpl) GetDeleted(where map[string]interface{}) error {
 
 func (r *repositoryImpl) FindAllWhere(where map[string]interface{}, preloads ...string) error {
 	queryDb := r.checkPreloads(preloads...)
-	queryDb = queryDb.Where(where).Find(r.entity)
+
+	if len(where) > 1 {
+		first := true
+		for key, value := range where {
+			condition := map[string]interface{}{key: value}
+			if first {
+				queryDb = queryDb.Where(condition)
+				first = false
+			} else {
+				queryDb = queryDb.Or(condition)
+			}
+		}
+	} else {
+		queryDb = queryDb.Where(where)
+	}
+
+	queryDb = queryDb.Find(r.entity)
 
 	if queryDb.Error != nil {
 		return queryDb.Error
