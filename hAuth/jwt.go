@@ -17,7 +17,12 @@ type User struct {
 // If an error occurs during token generation, it returns an empty string and the error.
 //
 // Example usage:
-//   token, err := hAuth.GenerateJWT(user)
+//   userAuth := hAuth.User{
+//     ID:    user.ID,
+//     Email: user.Email,
+//   }
+//
+//   token, err := hAuth.GenerateJWT(userAuth)
 //   if err != nil {
 //     return hResp.InternalServerErrorResponse(c, err.Error())
 //   }
