@@ -48,7 +48,23 @@ func (r *repositoryImpl) GetById(id int, preloads ...string) error {
 
 func (r *repositoryImpl) GetWhere(where map[string]interface{}, preloads ...string) error {
 	queryDb := r.checkPreloads(preloads...)
-	queryDb = queryDb.Where(where).First(r.entity)
+
+	if len(where) > 1 {
+		first := true
+		for key, value := range where {
+			condition := map[string]interface{}{key: value}
+			if first {
+				queryDb = queryDb.Where(condition)
+				first = false
+			} else {
+				queryDb = queryDb.Or(condition)
+			}
+		}
+	} else {
+		queryDb = queryDb.Where(where).First(r.entity)
+	}
+
+	queryDb = queryDb.Find(r.entity).First(r.entity)
 	if queryDb.Error != nil {
 		return queryDb.Error
 	}
