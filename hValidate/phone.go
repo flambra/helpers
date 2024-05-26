@@ -1,32 +1,23 @@
 package hValidate
+
 import (
-	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/flambra/helpers/hError"
 )
 
+// Cellphone validates and formats a phone number to the international format (E.164).
 func Cellphone(phone string) (string, error) {
-	if !isCellphoneFormatted(phone) {
-		return formatToCellphone(phone)
+	phone = strings.TrimSpace(phone)
+	if !isValidInternationalPhone(phone) {
+		return "", hError.New("failed to format phone: invalid international format")
 	}
 	return phone, nil
 }
 
-func isCellphoneFormatted(s string) bool {
-	re := regexp.MustCompile(`^\(\d{2}\)\d{5}-\d{4}$`)
+// isValidInternationalPhone validates a phone number in the international format (E.164).
+func isValidInternationalPhone(s string) bool {
+	re := regexp.MustCompile(`^\+\d{1,3}\d{1,14}$`)
 	return re.MatchString(s)
-}
-
-func formatToCellphone(phone string) (string, error) {
-	raw := removeEmptySpaces(phone)
-	if hasNonDigits(raw) {
-		return "", hError.New("failed to format phone: must have only digits")
-	}
-
-	if len(raw) != 11 {
-		return "", hError.New("failed to format phone: invalid length")
-	}
-	formatted := fmt.Sprintf("(%s)%s-%s", raw[0:2], raw[2:7], raw[7:11])
-	return formatted, nil
 }
