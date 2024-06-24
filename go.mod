@@ -5,7 +5,6 @@ go 1.22
 require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	golang.org/x/crypto v0.22.0
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.9
