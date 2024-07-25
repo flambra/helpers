@@ -16,6 +16,7 @@ type Request struct {
 	Url           string
 	ContentType   string
 	Authorization string
+	Header        map[string]string
 	Body          interface{}
 	Params        map[string]interface{}
 	StatusCode    int
@@ -39,6 +40,7 @@ func (r *Request) Post() ([]byte, error) {
 	}
 
 	req.Header.Add("Content-Type", r.ContentType)
+	r.customHeaders(req)
 
 	if r.Authorization != "" {
 		req.Header.Add("Authorization", r.Authorization)
@@ -80,6 +82,7 @@ func (r *Request) Get() ([]byte, error) {
 	}
 
 	req.Header.Add("Content-Type", r.ContentType)
+	r.customHeaders(req)
 
 	if r.Authorization != "" {
 		req.Header.Add("Authorization", r.Authorization)
@@ -128,6 +131,7 @@ func (r *Request) Put() ([]byte, error) {
 	}
 
 	req.Header.Add("Content-Type", r.ContentType)
+	r.customHeaders(req)
 
 	if r.Authorization != "" {
 		req.Header.Add("Authorization", r.Authorization)
@@ -179,4 +183,10 @@ func params(baseURL string, params map[string]interface{}) string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
+}
+
+func (r *Request) customHeaders(req *http.Request) {
+	for key, value := range r.Header {
+		req.Header.Add(key, value)
+	}
 }
